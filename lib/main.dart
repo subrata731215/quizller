@@ -4,7 +4,7 @@ import 'package:reactiv/dependency_management/dependency.dart';
 import 'package:reactiv/reactiv.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -18,15 +18,11 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: key);
-
+class HomePage extends ReactiveWidget<AllDataController> {
   @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final controler = Dependency.put<AllData>(AllData());
+  AllDataController bindController() {
+    return AllDataController();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,18 +53,16 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Observer(
-                              listen: controler.questionNumber.reactiv,
-                              update: (text) {
-                                return controler.showDisplayQuestion();
+                              listenable: controller.questionNumber,
+                              listener: (text) {
+                                return controller.showDisplayQuestion();
                               }),
                           Observer(
-                              listen: controler.questionNumber.reactiv,
-                              update: (num) {
+                              listenable: controller.questionNumber,
+                              listener: (questionTextIndex) {
                                 return Text(
-                                  controler
-                                      .questionList[controler.questionNumber]
-                                      .questionText,
-                                  style: TextStyle(fontSize: 40),
+                                  controller.questionList[questionTextIndex].questionText,
+                                  style: const TextStyle(fontSize: 40),
                                 );
                               })
                         ],
@@ -82,38 +76,39 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          setState(() {
-                            controler.increaseQuestion();
-                            bool correctAnswer = controler
-                                .questionList[controler.questionNumber].answer;
+                          controller.increaseQuestion();
+                          bool correctAnswer = controller
+                              .questionList[controller.questionNumber.value]
+                              .answer;
 
-                            if (correctAnswer == true) {
-                              controler.scorekeeper.add(Icon(Icons.check));
-                            } else {
-                              controler.scorekeeper.add(Icon(Icons.close));
-                            }
-                          });
+                          if (correctAnswer == true) {
+                            controller.scorekeeper.add(Icon(Icons.check));
+                          } else {
+                            controller.scorekeeper.add(Icon(Icons.close));
+                          }
                         },
-                        child: Text(
+                        child: const Text(
                           'True',
                           style: TextStyle(fontSize: 40),
                         ),
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          setState(() {
-                            controler.increaseQuestion();
-                            bool correctAnswer = controler
-                                .questionList[controler.questionNumber].answer;
 
+                          bool correctAnswer = controller
+                              .questionList[controller.questionNumber.value]
+                              .answer;
+
+                          if(controller.endQuestion==false){
                             if (correctAnswer == false) {
-                              controler.scorekeeper.add(Icon(Icons.check));
+                              controller.scorekeeper.add(Icon(Icons.check));
                             } else {
-                              controler.scorekeeper.add(Icon(Icons.close));
+                              controller.scorekeeper.add(Icon(Icons.close));
                             }
-                          });
+                          }
+                          controller.increaseQuestion();
                         },
-                        child: Text(
+                        child: const Text(
                           'False',
                           style: TextStyle(fontSize: 40),
                         ),
@@ -124,9 +119,14 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: controler.scorekeeper,
+          Observer(
+            listenable: controller.scorekeeper,
+            listener: (scoreList) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: scoreList,
+              );
+            },
           ),
         ],
       ),

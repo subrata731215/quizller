@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:reactiv/reactiv.dart';
 import 'quesBank.dart';
 
-class AllData extends ReactiveController {
-  int questionNumber = ReactiveInt(0).value;
+class AllDataController extends ReactiveController {
+  final questionNumber = 0.reactiv;
 
   ReactiveList<Icon> scorekeeper = ReactiveList([]);
 
@@ -20,15 +20,22 @@ class AllData extends ReactiveController {
   );
 
   void increaseQuestion() {
-    if (questionNumber < questionList.length - 1) {
-      questionList[questionNumber++].questionText;
+    if (questionNumber.value < questionList.length - 1) {
+      questionNumber.value++;
+    }
+    if(questionNumber.value==questionList.length-1){
+      endQuestion=true;
     }
   }
-
+bool endQuestion=false;
   Text showDisplayQuestion() {
+
+
     return Text(
-      '${(questionNumber + 1)} / ${questionList.length}',
+
+      '${(questionNumber.value + 1)} / ${questionList.length}',
       style: TextStyle(fontSize: 40),
     );
   }
+
 }
